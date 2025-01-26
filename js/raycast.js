@@ -5,6 +5,11 @@ const MAP_NUM_COLS = 15;
 const WINDOW_WIDTH = MAP_NUM_COLS * TILE_SIZE;
 const WINDOW_HEIGHT = MAP_NUM_ROWS * TILE_SIZE; 
 
+const FOV_ANGLE = 60 * (Math.PI / 180);
+
+const WALL_STRIP_WIDTH = 9;
+const NUM_RAYS = WINDOW_WIDTH / WALL_STRIP_WIDTH;
+
 class Map {
     constructor() {
         this.grid = [
@@ -65,9 +70,9 @@ class Player {
         if (!this.grid.hasWallAt(newX, newY))  {
             this.x = newX;
             this.y = newY;
-        } else if (!grid.hasWallAt(newX, this.y)) {
+        } else if (!this.grid.hasWallAt(newX, this.y)) {
             this.x = newX;
-        } else if (!grid.hasWallAt(this.x, newY)) {
+        } else if (!this.grid.hasWallAt(this.x, newY)) {
             this.y = newY;
         }
     }
@@ -86,8 +91,25 @@ class Player {
     }
 }
 
+class Ray {
+    constructor (rayAngle) {
+        this.rayAngle = rayAngle;
+    }
+
+    render () {
+        stroke("blue");
+        line(
+             player.x,
+             player.y,
+             player.x + Math.cos(this.rayAngle) * 30,
+             player.y + Math.sin(this.rayAngle) * 30
+        );
+    }
+}
+
 let gameMap = new Map();
 let player = new Player(gameMap);
+let rays = [];
 
 function keyPressed() {
     if (keyCode == UP_ARROW) {
@@ -117,16 +139,37 @@ function keyReleased() {
     }
 }
 
+function castAllRays() {
+    let columnId = 0;
+    
+    // start the first ray by subtracting half of the field of view
+    var rayAngle = player.rotationAngle - (FOV_ANGLE / 2);
+    rays = [];
+
+    for (let i = 0; i < NUM_RAYS; i++) {
+        var ray = new Ray(rayAngle);
+        rays.push(ray);
+        
+        rayAngle += FOV_ANGLE / NUM_RAYS;
+    
+        columnId++;
+    }
+}
+
 function setup() {
     createCanvas(WINDOW_WIDTH, WINDOW_HEIGHT);
 }
 
 function update() {
-   player.update(); 
+    player.update();
+    castAllRays(); 
 }
 
 function draw() {
 	update();
     gameMap.render();
+    for (ray of rays) {
+        ray.render();
+    }
     player.render();
 }
