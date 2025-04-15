@@ -135,13 +135,10 @@ class Ray {
         var nextHorizontalTouchX = xIntercept;
         var nextHorizontalTouchY = yIntercept;
 
-        if (this.isRayFacingUp) {
-            nextHorizontalTouchY--;
-        }
-
         //increment xStep and yStep until we find a wall
         while(nextHorizontalTouchX >= 0 && nextHorizontalTouchX <= WINDOW_WIDTH && nextHorizontalTouchY >= 0 && nextHorizontalTouchY <= WINDOW_HEIGHT) {
-            if (gameMap.hasWallAt(nextHorizontalTouchX, nextHorizontalTouchY)) {
+            var yOffset = this.isRayFacingUp ? 1 : 0;
+            if (gameMap.hasWallAt(nextHorizontalTouchX, nextHorizontalTouchY - yOffset)) {
                 foundHorizontalWallHit = true;
                 horizontalWallHitX = nextHorizontalTouchX;
                 horizontalWallHitY = nextHorizontalTouchY;
@@ -178,13 +175,11 @@ class Ray {
         var nextVerticalTouchX = xIntercept;    
         var nextVerticalTouchY = yIntercept;
 
-        if (this.isRayFacingLeft) {
-            nextVerticalTouchX--;
-        }
-
         //increment xStep and yStep until we find a wall
         while(nextVerticalTouchX >= 0 && nextVerticalTouchX <= WINDOW_WIDTH && nextVerticalTouchY >= 0 && nextVerticalTouchY <= WINDOW_HEIGHT) {
-            if (gameMap.hasWallAt(nextVerticalTouchX, nextVerticalTouchY)) {
+            // if the ray is facing left, we need to offset the x-coordinate by 1 to the left
+            var xOffset = this.isRayFacingLeft ? 1 : 0;
+            if (gameMap.hasWallAt(nextVerticalTouchX - xOffset, nextVerticalTouchY)) {
                 foundVerticalWallHit = true;
                 verticalWallHitX = nextVerticalTouchX;
                 verticalWallHitY = nextVerticalTouchY;
